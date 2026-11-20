@@ -918,8 +918,8 @@ function GroupLootFrame.ShowConfirm(rollID, rollType, confirmReason)
     ensureConfirmPopup();
 
     local r, g, b = Util.GetItemQualityColor(roll.quality or 1);
-    confirmPopup.title:SetText(roll.itemName or "");
-    confirmPopup.title:SetTextColor(r or 1, g or 1, b or 1);
+    confirmPopup.dialog.title:SetText(roll.itemName or "");
+    confirmPopup.dialog.title:SetTextColor(r or 1, g or 1, b or 1);
 
     confirmPopup:SetButtons("Cancel", "Roll",
         function()

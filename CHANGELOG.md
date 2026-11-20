@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.3
+
+### Group Loot
+
+- Fixed an error when rolling Need or Greed on an item that asks you to confirm first, such as a Bind on Pickup item. The confirmation now shows, and the roll goes through.
+
 ## 1.0.2
 
 ### Windows

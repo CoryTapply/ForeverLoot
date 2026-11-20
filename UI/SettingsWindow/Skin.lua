@@ -2053,7 +2053,7 @@ end
 
 --- Opens the popup. `buildContentFn(dialog, y)` - if given - is called fresh
 --- every open to lay out this caller's own summary/warning/note content
---- below the title (which the caller sets directly via `popup.title:SetText`
+--- below the title (which the caller sets directly via `popup.dialog.title:SetText`
 --- before calling this), returning the new (more negative) y cursor to
 --- continue from - same top-down accumulation AwardWindow's original
 --- ShowPopup used. This function finishes the layout itself (buttons, then
