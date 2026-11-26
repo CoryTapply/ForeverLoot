@@ -125,8 +125,8 @@ function GroupLootRoll.RollOn(rollID, rollType)
 end
 
 -- rollIDs FL.AutoRoll auto-rolled on the player's behalf, awaiting a possible
--- CONFIRM_LOOT_ROLL (e.g. Need on a Bind-on-Pickup item) that must bypass
--- GroupLootFrame.ShowConfirm's popup entirely - see onConfirmLootRoll below.
+-- CONFIRM_LOOT_ROLL (e.g. Need on a Bind-on-Pickup item) that must be
+-- confirmed without asking the player - see onConfirmLootRoll below.
 -- Owned entirely here; FL.AutoRoll never touches this set directly, only
 -- calls RollOnAuto.
 local pendingAuto = {};
@@ -388,22 +388,28 @@ end
 -- Fired synchronously from inside RollOnLoot (per Blizzard's own API docs)
 -- when the roll just requested needs confirmation before it's actually sent
 -- - e.g. Need on a Bind-on-Pickup item. The roll itself is untouched (no
--- CANCEL_LOOT_ROLL follows this), so the UI just needs to ask the player
--- and, on accept, call GroupLootRoll.ConfirmRoll to finish what RollOnLoot
--- started.
+-- CANCEL_LOOT_ROLL follows this). Blizzard's UIParent answers this same
+-- event with its own StaticPopup "CONFIRM_LOOT_ROLL" (whose OnAccept calls
+-- ConfirmLootRoll), and that popup is the only confirmation the player sees.
 local function onConfirmLootRoll(rollID, rollType, confirmReason)
     -- An auto-rolled item's BoP confirm must never block on the player -
-    -- bypass GroupLootFrame.ShowConfirm's popup entirely and finish the roll
-    -- FL.AutoRoll already decided on. A roll the player clicked themselves is
-    -- never in this set, so its own confirm popup is untouched.
+    -- finish the roll FL.AutoRoll already decided on, then close Blizzard's
+    -- popup for it. Deferred a frame so the hide lands whether UIParent's
+    -- handler runs before or after this one; StaticPopup_Hide matches on
+    -- dialog.data == rollID, so other rolls' popups are untouched.
     if (pendingAuto[rollID]) then
         pendingAuto[rollID] = nil;
         GroupLootRoll.ConfirmRoll(rollID, rollType);
+        C_Timer.After(0, function()
+            StaticPopup_Hide("CONFIRM_LOOT_ROLL", rollID);
+        end);
         return;
     end
 
-    if (FL.UI.GroupLootFrame.ShowConfirm) then
-        FL.UI.GroupLootFrame.ShowConfirm(rollID, rollType, confirmReason);
+    -- A roll the player clicked themselves: leave Blizzard's popup to ask,
+    -- and just tell the UI to keep this roll's row up meanwhile.
+    if (FL.UI.GroupLootFrame.MarkConfirmPending) then
+        FL.UI.GroupLootFrame.MarkConfirmPending(rollID);
     end
 end
 

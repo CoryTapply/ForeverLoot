@@ -93,13 +93,14 @@ local closingRollIDs = {};
 
 local hoveredRow, hoveredButton;
 
--- Set synchronously by ShowConfirm (called from GroupLootRoll.lua's
+-- Set synchronously by MarkConfirmPending (called from GroupLootRoll.lua's
 -- CONFIRM_LOOT_ROLL handler, itself fired synchronously from inside
 -- RollOnLoot per Blizzard's own API docs) so the click handler that just
 -- called RollOn can tell, the instant RollOn returns, whether this roll
--- needs confirmation before its row is allowed to close.
+-- needs confirmation before its row is allowed to close. The confirmation
+-- itself is Blizzard's own StaticPopup "CONFIRM_LOOT_ROLL" - this window
+-- never shows one of its own.
 local pendingConfirmRollID;
-local confirmPopup;
 
 --------------------------------------------------------------------------
 -- Forward declarations - everything below is mutually referential (render
@@ -110,7 +111,7 @@ local render, paintRow, closeRow, finishClose, removeFromOrder;
 local onOptionClick, onButtonEnter, onButtonLeave, clearButtonHover, updateOptionButton, showButtonTooltip;
 local updateRowTimer, applyTimerVariant, updateTimers;
 local truncateToWidth, fitNameText, skinPanel, sizeButtonIcon, buildOptionButton, createGrip, createHeader, createIdle, createMoreBar, createRow;
-local ensureFrame, ensureConfirmPopup, reapplyBorders;
+local ensureFrame, reapplyBorders;
 
 --------------------------------------------------------------------------
 -- Small helpers
@@ -326,10 +327,11 @@ onOptionClick = function(row, rollType)
     GroupLootRoll.RollOn(rollID, rollType);
 
     -- CONFIRM_LOOT_ROLL is documented as firing synchronously from inside
-    -- RollOnLoot, so by the time RollOn returns here, ShowConfirm (below)
-    -- has already run and shown its popup if this roll needed one - in
-    -- that case the row stays exactly as it was; there's nothing to
-    -- restore since it was never hidden.
+    -- RollOnLoot, so by the time RollOn returns here, MarkConfirmPending
+    -- (below) has already run if this roll needs confirmation - in that
+    -- case the row stays up while Blizzard's own popup asks. Accepting it
+    -- calls ConfirmLootRoll, whose CANCEL_LOOT_ROLL releases the row;
+    -- cancelling leaves the roll pending and the row clickable again.
     if (pendingConfirmRollID == rollID) then
         pendingConfirmRollID = nil;
         return;
@@ -902,50 +904,13 @@ render = function()
 end
 
 --------------------------------------------------------------------------
--- BoP/confirm popup
+-- BoP/confirm
 --------------------------------------------------------------------------
 
-ensureConfirmPopup = function()
-    if (confirmPopup) then return; end
-    confirmPopup = Skin.ConfirmPopup(frame, { width = 260 });
-end
-
-function GroupLootFrame.ShowConfirm(rollID, rollType, confirmReason)
-    local roll = GroupLootRoll.ActiveRolls[rollID];
-    if (not roll or not frame) then return; end
-
+--- Flags rollID as waiting on Blizzard's own CONFIRM_LOOT_ROLL popup, so
+--- onOptionClick keeps its row up instead of closing it.
+function GroupLootFrame.MarkConfirmPending(rollID)
     pendingConfirmRollID = rollID;
-    ensureConfirmPopup();
-
-    local r, g, b = Util.GetItemQualityColor(roll.quality or 1);
-    confirmPopup.dialog.title:SetText(roll.itemName or "");
-    confirmPopup.dialog.title:SetTextColor(r or 1, g or 1, b or 1);
-
-    confirmPopup:SetButtons("Cancel", "Roll",
-        function()
-            GroupLootRoll.ConfirmRoll(rollID, rollType);
-            closeRow(rollID);
-        end,
-        function() end -- cancelled: the row was never hidden, nothing to restore
-    );
-
-    confirmPopup:Show(function(dialog, y)
-        local body = dialog.confirmBody;
-        if (not body) then
-            body = dialog:CreateFontString(nil, "OVERLAY");
-            SetFont(body, "body");
-            body:SetTextColor(unpack(Colors.text));
-            body:SetJustifyH("LEFT");
-            body:SetJustifyV("TOP");
-            body:SetWordWrap(true);
-            dialog.confirmBody = body;
-        end
-        body:ClearAllPoints();
-        body:SetPoint("TOPLEFT", dialog, "TOPLEFT", confirmPopup.opts.padding, y);
-        body:SetPoint("TOPRIGHT", dialog, "TOPRIGHT", -confirmPopup.opts.padding, y);
-        body:SetText(confirmReason or "");
-        return y - body:GetStringHeight() - confirmPopup.opts.sectionGap;
-    end);
 end
 
 --------------------------------------------------------------------------

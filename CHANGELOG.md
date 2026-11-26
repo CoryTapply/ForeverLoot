@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.4
+
+### Group Loot
+
+- Rolling Need or Greed on an item that asks you to confirm first, such as a Bind on Pickup item, now shows only the game's own confirmation. ForeverLoot no longer shows a second one.
+- When Automatic Rolls rolls on a Bind on Pickup item for you, the game's confirmation no longer stays open on screen afterwards.
+
 ## 1.0.3
 
 ### Group Loot
