@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.6
+
+### Settings
+
+- The Settings window now shows the ForeverLoot version in its bottom-left corner.
+
 ## 1.0.5
 
 ### Loot chat

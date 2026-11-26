@@ -114,6 +114,14 @@ local function createSidebar()
     end);
     Skin.EditBox(searchBox, true);
 
+    -- Addon version, pinned to the sidebar's bottom-left corner.
+    local GetAddOnMetadata = (C_AddOns and C_AddOns.GetAddOnMetadata) or GetAddOnMetadata;
+    local versionText = sidebar:CreateFontString(nil, "OVERLAY");
+    SetFont(versionText, "small");
+    versionText:SetTextColor(unpack(Colors.muted));
+    versionText:SetPoint("BOTTOMLEFT", sidebar, "BOTTOMLEFT", Sizes.layout.sidebarTextInset, Sizes.layout.sidebarPadTop);
+    versionText:SetText("v" .. (GetAddOnMetadata(FL.name, "Version") or "?"));
+
     return sidebar, searchBox;
 end
 

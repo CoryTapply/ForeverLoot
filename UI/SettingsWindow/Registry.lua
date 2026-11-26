@@ -371,7 +371,7 @@ function Registry.Build(sidebar, content, topAnchor, footerRow)
     resultsContainer = CreateFrame("Frame", nil, sidebar);
     resultsContainer:SetPoint("TOPLEFT", topAnchor, "BOTTOMLEFT", 0, -Sizes.layout.searchNavGap);
     resultsContainer:SetPoint("TOPRIGHT", topAnchor, "BOTTOMRIGHT", 0, -Sizes.layout.searchNavGap);
-    resultsContainer:SetPoint("BOTTOM", sidebar, "BOTTOM", 0, Sizes.layout.sidebarPadTop);
+    resultsContainer:SetPoint("BOTTOM", sidebar, "BOTTOM", 0, Sizes.layout.sidebarPadTop + 16); -- clears the version label (Init.lua)
     resultsContainer:SetClipsChildren(true);
     resultsContainer:Hide();
 
