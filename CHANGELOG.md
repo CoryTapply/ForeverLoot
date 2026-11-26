@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.5
+
+### Loot chat
+
+- The options to print "receives loot" messages and to hide Blizzard loot messages in the main chat tab are now off by default for new installs. If you already use ForeverLoot, your current settings stay as they are.
+
 ## 1.0.4
 
 ### Group Loot

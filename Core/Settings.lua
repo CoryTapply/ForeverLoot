@@ -37,10 +37,10 @@ function Settings.Init()
     -- isn't ready for yet.
     s.lootMessages = s.lootMessages or {};
     local lm = s.lootMessages;
-    lm.enabled = (lm.enabled == nil) and true or (lm.enabled == true);
+    lm.enabled = (lm.enabled == true);
     lm.extraItems = lm.extraItems or {}; -- [itemID] = addedOrder
     lm.nextItemOrder = lm.nextItemOrder or 0;
-    lm.hideBlizzardMain = (lm.hideBlizzardMain == nil) and true or (lm.hideBlizzardMain == true);
+    lm.hideBlizzardMain = (lm.hideBlizzardMain == true);
     lm.lootTab = (lm.lootTab == true);
     lm.removedLootFromMain = (lm.removedLootFromMain == true); -- true only if WE removed LOOT from ChatFrame1
     -- lm.lootTabFrameID intentionally left as whatever it already was (nil is fine).
